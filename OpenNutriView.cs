@@ -27,7 +27,7 @@ namespace OpenNutriView
     {
         public static class NextFood
         {
-            static Dictionary<Type, HashSet<WorldObject>> GetAccessableFood(User user, float shopMaxCostPer1000Calories = float.PositiveInfinity, float shopMaxDistance = float.PositiveInfinity)
+            static Dictionary<Type, HashSet<WorldObject>> GetAccessableFood(User user, HashSet<int> ignoredCurrencyIds, float shopMaxCostPer1000Calories = float.PositiveInfinity, float shopMaxDistance = float.PositiveInfinity)
             {
                 var foods = new Dictionary<Type, HashSet<WorldObject>>();
 
@@ -42,7 +42,8 @@ namespace OpenNutriView
                 foreach (StoreComponent store in WorldObjectUtil
                     .AllObjsWithComponent<StoreComponent>()
                     .Where(store => store.Enabled
-                        && store.IsAuthorized(user, AccessType.ConsumerAccess)
+                        && store.IsRPCAuthorized(user.Player, AccessType.ConsumerAccess, Array.Empty<object>())
+                        && !ignoredCurrencyIds.Contains(store.Currency.Id)
                         && World.WrappedDistance(user.Player.WorldPosXZ(), store.Parent.WorldPosXZ()) <= shopMaxDistance))
                 {
                     foreach (var tradeOffer in store.StoreData.SellOffers
@@ -84,7 +85,7 @@ namespace OpenNutriView
                 var config = OpenNutriViewData.Obj.GetConfig(stomach.Owner);
                 var (stomachNutrients, stomachCalories, foodCalories) = LoadCurrentStomach(stomach);
 
-                var foods = GetAccessableFood(stomach.Owner, config.MaxCostPer1000Calories, config.MaxShopDistance);
+                var foods = GetAccessableFood(stomach.Owner, config.IgnoredCurrencies.ToHashSet(), config.MaxCostPer1000Calories, config.MaxShopDistance);
                 var foodGains = new Dictionary<Type, (float gain, bool assumedTaste, float nutrition)>();
                 foreach (var food in foods.Keys)
                     foodGains.Add(food, CalculateGain(TypeToFood(food), stomach, stomachNutrients, stomachCalories, foodCalories));
@@ -92,7 +93,7 @@ namespace OpenNutriView
                 var sb = new LocStringBuilder();
                 sb.AppendLine(new LocString(Text.ColorUnity(Color.Yellow.UInt, TextLoc.SizeLoc(0.8f, FormattableStringFactory.Create("These are the best 3 foods available to you (Good for a balanced diet):")).Italic())));
                 var addAssumedFooter = false;
-                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= (double)config.MinimumNutrients || !foodCalories.ContainsKey(f.Key)).Take(3))
+                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= config.MinimumNutrients || !foodCalories.ContainsKey(f.Key)).Take(3))
                 {
                     FoodItem food = TypeToFood(key);
                     var (gain, assumedTaste, _) = foodGains[key];

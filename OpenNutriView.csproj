@@ -12,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eco.ReferenceAssemblies" Version="0.10.0-beta-release-532" />
+    <PackageReference Include="Eco.ReferenceAssemblies" Version="0.10.1.2-beta-release-584" />
+    <PackageReference Include="Fody" Version="6.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StrangeLoopGames.PropertyChanged.Fody" Version="3.4.2-slg.3" />
   </ItemGroup>
 
   <ItemGroup>
