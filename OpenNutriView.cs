@@ -41,13 +41,18 @@ namespace OpenNutriView
                 // Stores
                 foreach (StoreComponent store in WorldObjectUtil
                     .AllObjsWithComponent<StoreComponent>()
-                    .Where(store => store.Enabled
+                    .Where(store => store != null
+                        && store.Currency != null
+                        && store.Parent != null
+                        && store.Enabled
                         && store.IsRPCAuthorized(user.Player, AccessType.ConsumerAccess, Array.Empty<object>())
                         && !ignoredCurrencyIds.Contains(store.Currency.Id)
                         && World.WrappedDistance(user.Player.WorldPosXZ(), store.Parent.WorldPosXZ()) <= shopMaxDistance))
                 {
                     foreach (var tradeOffer in store.StoreData.SellOffers
-                        .Where(o => o.Stack.Item is FoodItem foodItem
+                        .Where(o => o != null
+                            && o.Stack != null
+                            && o.Stack.Item is FoodItem foodItem
                             && foodItem.Calories > 0
                             && o.Stack.Quantity > 0
                             && o.Price / foodItem.Calories * 1000 < shopMaxCostPer1000Calories))
@@ -93,7 +98,7 @@ namespace OpenNutriView
                 var sb = new LocStringBuilder();
                 sb.AppendLine(new LocString(Text.ColorUnity(Color.Yellow.UInt, TextLoc.SizeLoc(0.8f, FormattableStringFactory.Create("These are the best 3 foods available to you (Good for a balanced diet):")).Italic())));
                 var addAssumedFooter = false;
-                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= config.MinimumNutrients || !foodCalories.ContainsKey(f.Key)).Take(3))
+                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= config.MinimumNutrients).Take(3))
                 {
                     FoodItem food = TypeToFood(key);
                     var (gain, assumedTaste, _) = foodGains[key];

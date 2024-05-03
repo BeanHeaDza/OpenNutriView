@@ -18,6 +18,7 @@ namespace OpenNutriView
         {
             if (!UserConfiguration.TryGetValue(user.Id, out ONVUserConfig config))
             {
+                UserConfiguration.TryRemove(user.Id);
                 config = new ONVUserConfig();
                 UserConfiguration.Add(user.Id, config);
             }

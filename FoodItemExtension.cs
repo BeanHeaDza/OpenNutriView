@@ -4,6 +4,8 @@ using Eco.Gameplay.Systems.NewTooltip;
 using Eco.Gameplay.Systems.NewTooltip.TooltipLibraryFiles;
 using Eco.Shared.Items;
 using Eco.Shared.Localization;
+using Eco.Shared.Utils;
+using System;
 
 namespace OpenNutriView
 {
@@ -13,7 +15,16 @@ namespace OpenNutriView
         [NewTooltip(CacheAs.Disabled, overrideType: typeof(Stomach))]
         public static LocString StomachTooltip(this Stomach stomach)
         {
-            return OpenNutriView.NextFood.Stomach(stomach);
+            try
+            {
+                return OpenNutriView.NextFood.Stomach(stomach);
+            }
+            catch (Exception e)
+            {
+                Log.WriteError(Localizer.Do($"[OpenNutriView] Failed to generate stomach tooltip for {stomach.Owner.Name}. See following exception:"));
+                Log.WriteException(e);
+                return LocString.Empty;
+            }
         }
 
         [NewTooltip(CacheAs.Disabled, overrideType: typeof(FoodItem))]
