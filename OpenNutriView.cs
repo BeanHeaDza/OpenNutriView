@@ -146,7 +146,7 @@ namespace OpenNutriView
             {
                 foodCalories = new Dictionary<Type, float>(foodCalories);
 
-                if (food.Calories <= 0)
+                if (food.Calories <= 0 || food.Calories > stomach.MaxCalories)
                     return (0, false, 0);
                 stomachCalories += food.Calories;
                 stomachNutrients += food.Nutrition * food.Calories;
