@@ -169,7 +169,7 @@ namespace OpenNutriView
 
                 var subTotal = nutrientTotal * varietyMultiplier * tastinessMultiplier * balancedDietMultiplier * cravingMultiplier * dinnerPartyMultiplier;
                 if (subTotal < 0) subTotal = 0;
-                var newSkillRate = (subTotal + EcoSim.BaseSkillGainRate) * BalanceConfig.Obj?.SkillGainMultiplier??1;
+                var newSkillRate = subTotal + EcoSim.BaseSkillGainRate;
                 var itemTasteMultiplier = !stomach.TasteBuds.FoodToTaste.TryGetValue(food.Type, out ItemTaste itemTaste) || !itemTaste.Discovered ? ItemTaste.TastinessMultiplier[(int)ItemTaste.TastePreference.Delicious] : itemTaste.TastinessMult;
                 var gain = newSkillRate - stomach.NutrientSkillRate();
                 var nutrition = food.Nutrition.NutrientTotal() * itemTasteMultiplier;
