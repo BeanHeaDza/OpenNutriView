@@ -63,7 +63,7 @@ namespace OpenNutriView
 
 
         #region IController
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
         int controllerID;
         [DoNotNotify] public ref int ControllerID => ref controllerID;
 
