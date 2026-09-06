@@ -43,11 +43,12 @@ namespace OpenNutriView
                 foreach (StoreComponent store in WorldObjectUtil
                     .AllObjsWithComponent<StoreComponent>()
                     .Where(store => store != null
-                        && store.Currency != null
+                        && store.StoreData != null
+                        && store.StoreData.Currency != null
                         && store.Parent != null
                         && store.Enabled
                         && store.IsRPCAuthorized(user.Player, AccessType.ConsumerAccess, Array.Empty<object>())
-                        && !ignoredCurrencyIds.Contains(store.Currency.Id)
+                        && !ignoredCurrencyIds.Contains(store.StoreData.Currency.Id)
                         && World.WrappedDistance(user.Player.WorldPosXZ(), store.Parent.WorldPosXZ()) <= shopMaxDistance))
                 {
                     foreach (var tradeOffer in store.StoreData.SellOffers
@@ -61,7 +62,7 @@ namespace OpenNutriView
                 }
 
                 // Containers
-                foreach (var storageComponent in WorldObjectUtil.AllObjsWithComponent<StorageComponent>().Where(i => i.Parent.Auth.Owners != null && i.Parent.Auth.Owners.ContainsUser(user)))
+                foreach (var storageComponent in WorldObjectUtil.AllObjsWithComponent<StorageComponent>().Where(i => i.Parent?.Owners?.ContainsUser(user) == true))
                     foreach (var itemStack in storageComponent.Inventory.Stacks.Where(item => item.Item is FoodItem))
                         addFood(itemStack, storageComponent.Parent);
 
