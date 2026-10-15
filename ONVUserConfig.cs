@@ -12,6 +12,7 @@ using PropertyChanged;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System;
 
 namespace OpenNutriView
 {
@@ -19,6 +20,7 @@ namespace OpenNutriView
     public class ONVUserConfig
     {
         [Serialized] public float MinimumNutrients { get; set; } = 0;
+        [Serialized] public int RecommendationCount { get; set; } = 3;
         [Serialized] public float MaxCostPer1000Calories { get; set; } = float.PositiveInfinity;
         [Serialized] public float MaxShopDistance { get; set; } = float.PositiveInfinity;
         [Serialized] public ThreadSafeList<int> IgnoredCurrencies = new();
@@ -30,6 +32,7 @@ namespace OpenNutriView
                 MaxCostPerThousandCalories = MaxCostPer1000Calories,
                 MaxShopDistance = MaxShopDistance,
                 MinimumNutrients = MinimumNutrients,
+                RecommendationCount = RecommendationCount,
             };
             var idToCurrency = new Dictionary<int, Currency>();
             CurrencyManager.Currencies.ForEach(c => idToCurrency.Add(c.Id, c));
@@ -41,6 +44,7 @@ namespace OpenNutriView
         {
             MaxCostPer1000Calories = config.MaxCostPerThousandCalories;
             MinimumNutrients = config.MinimumNutrients;
+            RecommendationCount = Math.Clamp(config.RecommendationCount, 1, 10);
             MaxShopDistance = config.MaxShopDistance;
             IgnoredCurrencies.Clear();
             IgnoredCurrencies.AddRange(config.IgnoredCurrencies.Select(c => c.Id));
@@ -50,6 +54,8 @@ namespace OpenNutriView
     public class ONVUserConfigUI : IController, INotifyPropertyChanged, Eco.Core.PropertyHandling.INotifyPropertyChangedInvoker, IHasClientControlledContainers
     {
         [Eco] public float MinimumNutrients { get; set; } = 0;
+
+        [Eco, Range(1, 10)] public int RecommendationCount { get; set; } = 3;
 
         [Eco] public float MaxCostPerThousandCalories { get; set; } = float.PositiveInfinity;
 

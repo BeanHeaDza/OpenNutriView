@@ -97,9 +97,12 @@ namespace OpenNutriView
                     foodGains.Add(food, CalculateGain(TypeToFood(food), stomach, stomachNutrients, stomachCalories, foodCalories));
 
                 var sb = new LocStringBuilder();
-                sb.AppendLine(new LocString(Text.ColorUnity(Color.Yellow.UInt, TextLoc.SizeLoc(0.8f, FormattableStringFactory.Create("These are the best 3 foods available to you (Good for a balanced diet):")).Italic())));
+                Nutrients balancedNutrients = stomachCalories > 0 ? stomachNutrients * (1f / stomachCalories) : new Nutrients();
+                var (balancedMult, _) = balancedNutrients.CalcBalancedDietMult();
+                sb.AppendLine(Localizer.Do(FormattableStringFactory.Create("Current stomach: {0} kcal, balance x{1}, {2} nutrients per 1000 kcal", Text.Info(Text.Num(stomachCalories)), Text.Info(balancedMult.ToString("0.00")), Text.Info(balancedNutrients.NutrientTotal().ToString("0.0")))));
+                sb.AppendLine(new LocString(Text.ColorUnity(Color.Yellow.UInt, TextLoc.SizeLoc(0.8f, FormattableStringFactory.Create($"These are the best {config.RecommendationCount} foods available to you (Good for a balanced diet):")).Italic())));
                 var addAssumedFooter = false;
-                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= config.MinimumNutrients).Take(3))
+                foreach (var (key, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].gain).Where(f => foodGains[f.Key].nutrition >= config.MinimumNutrients).Take(config.RecommendationCount))
                 {
                     FoodItem food = TypeToFood(key);
                     var (gain, assumedTaste, _) = foodGains[key];
@@ -114,7 +117,7 @@ namespace OpenNutriView
                 sb.AppendLine();
                 sb.AppendLine(new LocString(Text.ColorUnity(Color.Yellow.UInt, TextLoc.SizeLoc(0.8f, FormattableStringFactory.Create("These are the most nutrient dense food available to you (Good for when your diet balance is good and previous suggestions are bad):")).Italic())));
                 addAssumedFooter = false;
-                foreach (var (foodType, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].Item3).Take(3))
+                foreach (var (foodType, worldObjs) in foods.OrderByDescending(f => foodGains[f.Key].Item3).Take(config.RecommendationCount))
                 {
                     FoodItem food = TypeToFood(foodType);
                     var (gain, assumedTaste, nutrition) = foodGains[foodType];
